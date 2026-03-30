@@ -1,0 +1,90 @@
+1번
+%근
+fzero(@pmj_21010974_func_1,1.5)
+%최소값
+min = fminbnd(@pmj_21010974_func_1, 0, 4)
+
+pmj_21010974_func_1(0.7101)
+
+
+f = @(x) 0.3*x - sin(2*x);
+df = @(x) 0.3 - 2*cos(2*x);  
+ddf = @(x) 4*sin(2*x);      
+
+
+root_0 = 0; 
+root_any = fzero(f, 1.5); 
+
+
+[x_min, f_min] = fminbnd(f, 0, 4);
+
+
+f_start = f(0);   
+f_end = f(4);     
+check_ddf = ddf(x_min)
+%f_min이 양 끝값보다 작고, 해당 구간 내 유일한 극소점이므로 전역 최솟값이다.
+
+2번
+pmj_21010974_func_2(100,50,9.81)
+
+function h=a(t)
+h = 50.*t - 0.5*9.81.*t.^2;
+end
+fplot(@a,[0, 10])
+[7.461246382210641] 물체가 출발 해 처음으로 100m 높이에 도달하는 시간이다
+[2.732433536239918] 최고점에 도달한 후 내려오면서 다시 100m 높이를 통과하는 시간이다.
+
+3번
+(a)
+
+%A=pi * r .* sqrt(r.^2 + (3*V ./ (pi * r.^2)).^2);
+
+(b)
+%function a = pmj_21010974_func_3_b(r)
+  %  global v; 
+  %  a = pi * r .* sqrt(r.^2 + (3 * v ./ (pi * r.^2)).^2);
+%end
+(c)
+
+global v;
+v = 10; 
+
+r_opt = fminbnd(@pmj_21010974_func_3_b, 0.1, 5);
+
+
+h_opt = (3 * v) / (pi * r_opt^2);
+
+A_min = pmj_21010974_func_3_b(r_opt);
+A_limit = 1.10 * A_min;
+
+r_low = fzero(@(r) pmj_21010974_func_3_b(r) - A_limit, [0.1, r_opt]);
+r_high = fzero(@(r) pmj_21010974_func_3_b(r) - A_limit, [r_opt, 5]);
+
+disp(r_opt);
+
+
+r_axis = linspace(1, 5, 100);
+A_axis = pmj_21010974_func_3_b(r_axis);
+
+figure;
+plot(r_axis, A_axis, 'LineWidth', 1.5)
+plot(r_opt, A_min, 'ro', 'MarkerFaceColor', 'r')
+
+
+4번
+pmj_21010974_func_4= @(x) 10 * exp(-2*x);
+fplot(pmj_21010974_func_4, [0, 2]);
+
+5번
+pmj_21010974_func_5 = @(x) 30*x.^2 - 300*x + 4;
+fplot(pmj_21010974_func_5, [0, 10])
+min_5 = fminbnd(pmj_21010974_func_5, 0, 10);
+disp( min_5);
+
+6번
+f = @(x) x.^2;
+g = @(y) 3 * cos(y);
+h = @(z) 6 * exp(z);
+an = @(x) h(g(f(x)));
+
+fplot(an, [0, 4]);
