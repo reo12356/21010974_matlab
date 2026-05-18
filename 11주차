@@ -1,0 +1,524 @@
+1
+%a
+Hour = [6;7;8;9;10;11;12;13;14;15;16;17];
+SolarGen = [0.5;1.2;2.4;3.8;4.6;5.1;5.4;5.0;4.2;3.0;1.7;0.8];
+Demand = [1.8;2.0;2.3;2.7;3.1;3.4;3.8;4.0;3.7;3.4;3.0;2.5];
+Battery = [3.2;3.0;3.1;3.8;4.5;5.2;5.9;6.3;6.5;6.1;5.4;4.7];
+%b
+A = [Hour,SolarGen,Demand,Battery];
+%c
+writematrix(A,'solar_system.txt');
+%d
+B = load('solar_system.txt');
+%e
+hour = B(:,1); solar = B(:,2); demand = B(:,3); battery = B(:,4);
+%f
+netPower = solar - demand;
+%g
+plot(hour,netPower)
+2
+clear; clc;
+%a
+D =
+[1,2.1,8,12;2,3.4,13,19;3,1.8,7,10;4,5.2,21,31;5,4.7,19,28;6,6.0,25,36;7,3.1
+,12,18;8,5.8,24,35];
+%b
+writematrix(D,'drone_delivery.txt');
+f = load('drone_delivery.txt');
+%c
+1
+3
+4
+RouteID = f(:,1); DistanceKm = f(:,2); TimeMin = f(:,3); BatteryUsed =
+f(:,4);
+%d
+speed = DistanceKm ./ TimeMin;
+%d
+BatteryPerKm = BatteryUsed ./ DistanceKm;
+%f
+idx = BatteryPerKm > 6;
+result_matrix = [RouteID(idx),DistanceKm(idx),BatteryPerKm(idx)];
+disp(result_matrix);
+8.0000 5.8000 6.0345
+clear; clc;
+%a
+Zone = {'Z1';'Z2';'Z3';'Z4';'Z5';'Z6';'Z7';'Z8'};
+Temp = [22.5;24.1;21.8;25.3;23.7;26.0;22.9;24.8];
+Humidity = [61;58;67;55;62;53;65;57];
+Light = [420;460;390;520;480;550;410;500];
+CO2 = [510;540;495;610;575;640;520;600];
+%b
+Farm = table(Zone,Temp,Humidity,Light,CO2);
+%c
+Farm.EnvIndex = 0.4*Farm.Temp + 0.01*Farm.Light + 0.02*Farm.CO2;
+%d
+HighEnv = Farm(Farm.EnvIndex >= 25,:);
+%e
+disp(HighEnv(:,{'Zone','Temp','Light','EnvIndex'}));
+Zone Temp Light EnvIndex
+______ ____ _____ ________
+{'Z2'} 24.1 460 25.04
+{'Z4'} 25.3 520 27.52
+{'Z5'} 23.7 480 25.78
+{'Z6'} 26 550 28.7
+{'Z8'} 24.8 500 26.92
+clear; clc;
+%a
+Machine = {'M1';'M2';'M3';'M4';'M5';'M6';'M7';'M8';'M9';'M10'};
+Vibration = [1.8;2.4;1.5;3.1;2.7;1.9;3.5;2.2;1.6;2.9];
+Temp = [68;72;65;78;74;69;82;71;66;76];
+Power = [4.5;5.1;4.2;6.3;5.7;4.8;6.8;5.0;4.4;6.0];
+Defect = [2;5;1;8;6;3;10;4;1;7];
+Factory = table(Machine,Vibration,Temp,Power,Defect);
+%b
+Factory.RiskScore = Factory.Vibration .* Factory.Temp ./ Factory.Power;
+%c
+2
+5
+6
+RiskMachines = Factory((Factory.RiskScore >= 35) & (Factory.Defect >= 6),:);
+%d
+disp(RiskMachines(:,{'Machine','RiskScore','Defect'}));
+Machine RiskScore Defect
+_______ _________ ______
+{'M4' } 38.381 8
+{'M5' } 35.053 6
+{'M7' } 42.206 10
+{'M10'} 36.733 7
+%e
+writetable(Factory,'factory_risk.csv');
+clear; clc;
+%a
+url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/abalone/
+abalone.data';
+%b
+Abalone = readtable(url,'FileType','text','ReadVariableNames',false);
+%c
+Abalone.Properties.VariableNames =
+{'Sex','Length','Diameter','Height','WholeWeight','ShuckedWeight','VisceraWe
+ight','ShellWeight','Rings'};
+%d
+sub_table = Abalone(:,{'WholeWeight','ShellWeight','Rings'});
+%e
+if iscategorical(Abalone.Sex), idx = (Abalone.Sex == 'M') & (Abalone.Rings
+>= 15);
+else, idx = strcmp(Abalone.Sex,'M') & (Abalone.Rings >= 15); end
+%f
+OldMale = Abalone(idx,:);
+disp(head(OldMale(:,{'Sex','Length','WholeWeight','Rings'})));
+Sex Length WholeWeight Rings
+_____ ______ ___________ _____
+{'M'} 0.455 0.514 15
+{'M'} 0.605 0.9365 15
+{'M'} 0.665 1.338 18
+{'M'} 0.595 1.3175 21
+{'M'} 0.565 0.8115 15
+{'M'} 0.695 1.494 15
+{'M'} 0.55 0.843 15
+{'M'} 0.53 0.883 15
+%b
+Abalone.ShellRatio = Abalone.ShellWeight ./ Abalone.WholeWeight;
+3
+%c
+%d
+HardShell = Abalone((Abalone.ShellRatio >= 0.25) & (Abalone.Rings >= 12),:);
+disp(head(HardShell(:,
+{'Sex','WholeWeight','ShellWeight','ShellRatio','Rings'})));
+Sex WholeWeight ShellWeight ShellRatio Rings
+_____ ___________ ___________ __________ _____
+{'M'} 0.514 0.15 0.29183 15
+{'F'} 0.7775 0.33 0.42444 20
+{'F'} 0.768 0.26 0.33854 16
+{'F'} 0.8945 0.32 0.35774 19
+{'F'} 0.6065 0.21 0.34625 14
+{'M'} 0.6645 0.24 0.36117 12
+{'F'} 0.9395 0.27 0.28739 12
+{'M'} 0.931 0.28 0.30075 12
+%e
+ratioData = HardShell.ShellRatio;
+7
+clear; clc;
+%a
+url = 'https://archive.ics.uci.edu/ml/machine-learning-databases/forest-
+fires/forestfires.csv';
+%b
+Fire = readtable(url);
+%c
+temp = Fire.temp; RH = Fire.RH; wind = Fire.wind; rain = Fire.rain; area =
+Fire.area;
+%d
+HotDryFires = Fire((temp >= 25) & (RH <= 35),:);
+%e
+disp(HotDryFires(:,{'month','day','temp','RH','wind','area'}));
+month day temp RH wind area
+_______ _______ ____ __ ____ ______
+{'sep'} {'wed'} 26.4 21 4.5 0
+{'sep'} {'sat'} 30.2 24 2.7 0
+{'sep'} {'fri'} 25.4 24 3.6 0
+{'sep'} {'wed'} 25.9 24 4 0
+{'sep'} {'thu'} 27.7 24 2.2 0
+{'sep'} {'fri'} 27.6 30 1.3 0
+{'sep'} {'thu'} 25.4 27 2.2 0
+{'aug'} {'thu'} 27.4 22 4 0.9
+{'sep'} {'sat'} 29.6 27 2.7 1.46
+{'sep'} {'sat'} 28.6 27 2.2 1.61
+{'sep'} {'sun'} 28.3 26 3.1 64.1
+{'sep'} {'wed'} 26.4 21 4.5 88.49
+{'sep'} {'sun'} 27.8 27 3.1 95.18
+{'sep'} {'sat'} 25.1 27 4 1090.8
+{'aug'} {'wed'} 28.7 28 2.7 0
+{'aug'} {'wed'} 26.8 25 3.1 0.68
+4
+{'aug'} {'mon'} 28.3 32 4 8.85
+{'jul'} {'tue'} 26.9 28 5.4 86.45
+{'sep'} {'sun'} 25.3 27 2.7 0
+{'aug'} {'wed'} 28.2 29 1.8 5.86
+{'aug'} {'sat'} 25.9 32 3.1 0
+{'jun'} {'wed'} 28 34 4.5 0
+{'jun'} {'wed'} 28 34 4.5 8.16
+{'aug'} {'tue'} 27.9 27 2.2 0
+{'aug'} {'sat'} 26.4 33 3.6 0
+{'aug'} {'thu'} 27.5 27 4.9 746.28
+{'aug'} {'wed'} 30.8 19 4.5 0
+{'jul'} {'sun'} 29.3 27 3.6 6.3
+{'aug'} {'sat'} 26.9 31 3.6 4.96
+{'aug'} {'mon'} 27.9 33 2.2 2.35
+{'aug'} {'thu'} 26.2 34 5.8 0
+{'aug'} {'mon'} 26.8 35 1.3 0.54
+{'aug'} {'mon'} 25.5 29 1.8 1.23
+{'jun'} {'thu'} 26.4 35 2.7 10.08
+{'jul'} {'thu'} 27.2 28 1.3 1.76
+{'jul'} {'thu'} 30.2 25 4.5 2.75
+{'jul'} {'thu'} 30.2 22 4.9 0
+{'aug'} {'sun'} 31 27 5.4 0
+{'aug'} {'sun'} 33.1 25 4 26.43
+{'aug'} {'mon'} 30.6 28 3.6 2.07
+{'aug'} {'tue'} 26.4 34 3.6 16.4
+{'aug'} {'wed'} 28.7 33 4 0
+{'aug'} {'thu'} 32.4 21 4.5 0
+{'aug'} {'fri'} 32.4 27 2.2 0
+{'aug'} {'fri'} 27.5 29 4.5 43.32
+{'aug'} {'sat'} 30.8 30 4.9 8.59
+{'aug'} {'mon'} 32.6 26 3.1 2.77
+{'aug'} {'tue'} 32.3 27 2.2 14.68
+{'aug'} {'tue'} 33.3 26 2.7 40.54
+{'aug'} {'wed'} 29.2 30 4.9 1.95
+{'aug'} {'wed'} 28.9 29 4.9 49.59
+{'aug'} {'thu'} 26.7 35 1.8 5.8
+{'aug'} {'sun'} 27.8 35 2.7 0
+{'aug'} {'sun'} 27.8 32 2.7 6.44
+8
+%b
+%c
+%d
+Fire.RiskIndex = Fire.temp .* Fire.wind ./ Fire.RH;
+RiskFire = Fire((Fire.RiskIndex >= 2) & (Fire.area > 0),:);
+disp(RiskFire(:,{'month','day','temp','RH','wind','area','RiskIndex'}));
+month day temp RH wind area RiskIndex
+_______ _______ ____ __ ____ ______ _________
+{'aug'} {'wed'} 23.3 31 4.5 0.55 3.3823
+{'aug'} {'fri'} 21.2 51 8.9 0.61 3.6996
+{'aug'} {'wed'} 23.8 32 5.4 0.77 4.0163
+{'aug'} {'thu'} 27.4 22 4 0.9 4.9818
+{'sep'} {'tue'} 24.2 28 3.6 0.96 3.1114
+{'aug'} {'tue'} 17.4 43 6.7 1.07 2.7112
+{'sep'} {'thu'} 23.7 25 4.5 1.12 4.266
+{'jun'} {'fri'} 23.2 39 5.4 1.19 3.2123
+5
+{'sep'} {'fri'} 20.1 47 4.9 1.46 2.0955
+{'sep'} {'sat'} 29.6 27 2.7 1.46 2.96
+{'sep'} {'sat'} 28.6 27 2.2 1.61 2.3304
+{'aug'} {'wed'} 20.5 35 4 1.64 2.3429
+{'sep'} {'fri'} 19 34 5.8 1.69 3.2412
+{'mar'} {'sat'} 15.2 31 8.5 1.94 4.1677
+{'aug'} {'wed'} 23.4 33 4.5 2.51 3.1909
+{'mar'} {'fri'} 14.6 26 9.4 2.53 5.2785
+{'aug'} {'sun'} 20.1 39 5.4 2.74 2.7831
+{'aug'} {'sat'} 20.3 39 4.9 4.53 2.5505
+{'sep'} {'sun'} 23.9 32 6.7 5.33 5.0041
+{'oct'} {'mon'} 19.1 32 4 5.44 2.3875
+{'aug'} {'fri'} 20.8 34 4.9 6.96 2.9976
+{'aug'} {'thu'} 24.2 28 2.7 8.68 2.3336
+{'aug'} {'tue'} 24.6 22 4.5 8.71 5.0318
+{'sep'} {'wed'} 24.3 25 4 9.41 3.888
+{'aug'} {'tue'} 24.6 22 4.5 10.01 5.0318
+{'aug'} {'fri'} 23.5 36 5.4 10.02 3.525
+{'sep'} {'mon'} 22.6 38 3.6 11.32 2.1411
+{'aug'} {'sat'} 22.9 31 7.2 15.45 5.3187
+{'sep'} {'fri'} 19.6 33 6.3 19.23 3.7418
+{'sep'} {'thu'} 23.2 26 4.9 23.41 4.3723
+{'oct'} {'sat'} 18.4 25 3.1 24.23 2.2816
+{'sep'} {'fri'} 20.1 47 4.9 26.13 2.0955
+{'mar'} {'sat'} 17 27 4.9 28.66 3.0852
+{'mar'} {'sat'} 17 27 4.9 28.66 3.0852
+{'sep'} {'sun'} 22.9 39 4.9 48.55 2.8772
+{'aug'} {'sat'} 20.1 34 4.5 58.3 2.6603
+{'sep'} {'sun'} 28.3 26 3.1 64.1 3.3742
+{'sep'} {'wed'} 26.4 21 4.5 88.49 5.6571
+{'sep'} {'sun'} 27.8 27 3.1 95.18 3.1919
+{'sep'} {'tue'} 24.3 36 3.1 105.66 2.0925
+{'sep'} {'sat'} 17.7 25 3.1 154.88 2.1948
+{'aug'} {'sun'} 19.6 41 5.8 196.48 2.7727
+{'sep'} {'sat'} 25.1 27 4 1090.8 3.7185
+{'aug'} {'sun'} 22.4 54 7.6 2.87 3.1526
+{'aug'} {'sun'} 26.8 38 6.3 0.76 4.4432
+{'aug'} {'sun'} 25.7 39 5.4 0.09 3.5585
+{'aug'} {'wed'} 26.8 25 3.1 0.68 3.3232
+{'aug'} {'wed'} 24 36 3.1 0.24 2.0667
+{'aug'} {'wed'} 22.1 37 3.6 0.21 2.1503
+{'aug'} {'mon'} 28.3 32 4 8.85 3.5375
+{'aug'} {'tue'} 22.1 54 7.6 0.79 3.1104
+{'jul'} {'tue'} 26.9 28 5.4 86.45 5.1879
+{'jun'} {'mon'} 19.1 39 5.4 3.52 2.6446
+{'sep'} {'sun'} 23.8 35 3.6 5.18 2.448
+{'sep'} {'thu'} 19.2 24 4.9 3.78 3.92
+{'sep'} {'thu'} 21.6 28 6.3 4.41 4.86
+{'sep'} {'thu'} 18.9 34 7.2 34.36 4.0024
+{'sep'} {'thu'} 16.8 28 4 7.21 2.4
+{'sep'} {'thu'} 16.8 28 4 1.01 2.4
+{'sep'} {'sat'} 23.5 27 4 3.33 3.4815
+{'sep'} {'sat'} 24.2 27 3.1 6.58 2.7785
+{'sep'} {'sat'} 21.5 28 4.5 15.64 3.4554
+{'sep'} {'fri'} 20.8 35 4.9 13.06 2.912
+{'sep'} {'fri'} 20.8 35 4.9 1.26 2.912
+{'sep'} {'tue'} 15.9 38 5.4 1.75 2.2595
+{'jul'} {'wed'} 19.3 39 7.2 7.73 3.5631
+{'aug'} {'sat'} 21.3 44 4.5 12.18 2.1784
+{'sep'} {'sun'} 20.6 55 5.4 24.59 2.0225
+{'aug'} {'fri'} 23.3 34 3.1 28.74 2.1244
+{'sep'} {'sun'} 21.9 43 4 70.76 2.0372
+{'aug'} {'sun'} 24.3 33 3.6 3.63 2.6509
+{'jun'} {'wed'} 28 34 4.5 8.16 3.7059
+6
+%e
+writetable(RiskFire,'forest_risk.csv');
+9
+{'jul'} {'mon'} 22.8 27 4.5 1.63 3.8
+{'aug'} {'thu'} 27.5 27 4.9 746.28 4.9907
+{'jul'} {'tue'} 26.3 39 3.1 7.02 2.0905
+{'aug'} {'sun'} 24.9 42 5.4 2.44 3.2014
+{'aug'} {'sun'} 24.8 36 4 3.05 2.7556
+{'aug'} {'wed'} 26.2 36 4.5 185.76 3.275
+{'jul'} {'sun'} 29.3 27 3.6 6.3 3.9067
+{'aug'} {'sat'} 26.9 31 3.6 4.96 3.1239
+{'aug'} {'sun'} 24.6 44 4 3.2 2.2364
+{'aug'} {'sat'} 23.3 40 4 6.36 2.33
+{'aug'} {'wed'} 23.4 49 5.4 6.43 2.5788
+{'apr'} {'sun'} 13.7 33 9.4 61.13 3.9024
+{'jun'} {'thu'} 26.4 35 2.7 10.08 2.0366
+{'jun'} {'thu'} 22.7 40 9.4 3.19 5.3345
+{'jul'} {'sun'} 26.1 45 4 7.36 2.32
+{'jul'} {'thu'} 30.2 25 4.5 2.75 5.436
+{'aug'} {'sun'} 23.4 40 5.8 1.29 3.393
+{'aug'} {'sun'} 33.1 25 4 26.43 5.296
+{'aug'} {'mon'} 30.6 28 3.6 2.07 3.9343
+{'aug'} {'tue'} 24.1 43 6.3 2 3.5309
+{'aug'} {'tue'} 26.4 34 3.6 16.4 2.7953
+{'aug'} {'tue'} 19.4 71 7.6 46.7 2.0766
+{'aug'} {'fri'} 27.5 29 4.5 43.32 4.2672
+{'aug'} {'sat'} 30.8 30 4.9 8.59 5.0307
+{'aug'} {'mon'} 32.6 26 3.1 2.77 3.8869
+{'aug'} {'tue'} 32.3 27 2.2 14.68 2.6319
+{'aug'} {'tue'} 33.3 26 2.7 40.54 3.4581
+{'aug'} {'tue'} 27.3 63 4.9 10.82 2.1233
+{'aug'} {'wed'} 29.2 30 4.9 1.95 4.7693
+{'aug'} {'wed'} 28.9 29 4.9 49.59 4.8831
+{'aug'} {'fri'} 21.1 71 7.6 2.17 2.2586
+{'aug'} {'sun'} 27.8 32 2.7 6.44 2.3456
+{'aug'} {'sun'} 21.2 70 6.7 11.16 2.0291
+clear; clc;
+%a
+%b
+P = readtable('penguins.csv');
+disp(P.Properties.VariableNames);
+{'id'} {'species'} {'island'} {'bill_length_mm'} {'bill_depth_mm'} {'flipper_length_mm
+%c
+%d
+P_heavy = P(P.body_mass_g >= 4500,:);
+disp(head(P_heavy(:,{'species','island','body_mass_g','sex'})));
+species island body_mass_g sex
+__________ _____________ ___________ ________
+{'Adelie'} {'Torgersen'} 4675 {'male'}
+{'Adelie'} {'Torgersen'} 4500 {'male'}
+{'Adelie'} {'Dream' } 4650 {'male'}
+7
+{'Adelie'} {'Dream' } 4600 {'male'}
+{'Adelie'} {'Torgersen'} 4700 {'male'}
+{'Adelie'} {'Biscoe' } 4725 {'male'}
+{'Adelie'} {'Biscoe' } 4775 {'male'}
+{'Adelie'} {'Biscoe' } 4600 {'male'}
+%e
+if iscategorical(P.species), idx = (P.species == 'Gentoo') & (P.body_mass_g
+>= 5000);
+else, idx = strcmp(P.species,'Gentoo') & (P.body_mass_g >= 5000); end
+LargeGentoo = P(idx,:);
+10
+%b
+%c
+%d
+P.BillRatio = P.bill_length_mm ./ P.bill_depth_mm;
+LongBill = P(P.BillRatio >= 2.8,:);
+disp(head(LongBill(:,
+{'species','bill_length_mm','bill_depth_mm','BillRatio'})));
+species bill_length_mm bill_depth_mm BillRatio
+__________ ______________ _____________ _________
+{'Gentoo'} 46.1 13.2 3.4924
+{'Gentoo'} 50 16.3 3.0675
+{'Gentoo'} 48.7 14.1 3.4539
+{'Gentoo'} 50 15.2 3.2895
+{'Gentoo'} 47.6 14.5 3.2828
+{'Gentoo'} 46.5 13.5 3.4444
+{'Gentoo'} 45.4 14.6 3.1096
+{'Gentoo'} 46.7 15.3 3.0523
+billRatioData = LongBill.BillRatio;
+11
+clear; clc;
+%a
+%b
+H = readtable('heart_failure.csv');
+disp(H.Properties.VariableNames);
+{'age'} {'anaemia'} {'creatinine_phosphokinase'} {'diabetes'} {'ejection_fraction'} {'h
+%c
+HighRisk = H((H.age >= 70) & (H.ejection_fraction <= 35),:);
+%d
+disp(HighRisk(:,
+{'age','ejection_fraction','serum_creatinine','serum_sodium','DEATH_EVENT'})
+);
+8
+age ejection_fraction serum_creatinine serum_sodium DEATH_EVENT
+___ _________________ ________________ ____________ ___________
+75 20 1.9 130 1
+75 15 1.2 137 1
+80 35 9.4 133 1
+70 25 1 140 1
+75 30 1.83 134 1
+82 30 1.2 132 1
+70 20 1.83 134 1
+80 20 4.4 133 1
+95 30 2 132 1
+70 35 2.7 138 0
+72 20 1.3 136 1
+72 25 1 140 1
+70 25 1.2 142 1
+85 35 1 132 1
+80 25 1.1 144 0
+72 30 1.7 138 1
+81 35 1.18 137 0
+72 25 1.7 139 1
+75 30 1.83 134 1
+70 35 0.8 133 0
+80 35 2.1 134 0
+73 30 1.18 142 0
+70 17 1 136 0
+73 35 1.3 134 0
+73 20 1.83 134 1
+72 25 1.2 134 0
+70 35 1.1 134 0
+70 30 1.2 132 0
+70 35 1.3 139 0
+70 35 1.2 132 0
+70 35 1.1 142 0
+%e
+DeathGroup = H(H.DEATH_EVENT == 1,:);
+SurvivalGroup = H(H.DEATH_EVENT == 0,:);
+12
+%b
+%c
+%d
+H.RiskScore = H.age ./ H.ejection_fraction + H.serum_creatinine;
+RiskScoreGroup = H(H.RiskScore >= 4,:);
+disp(RiskScoreGroup(:,
+{'age','ejection_fraction','serum_creatinine','RiskScore','DEATH_EVENT'}));
+age ejection_fraction serum_creatinine RiskScore DEATH_EVENT
+___ _________________ ________________ _________ ___________
+75 20 1.9 5.65 1
+65 20 1.3 4.55 1
+50 20 1.9 4.4 1
+65 20 2.7 5.95 1
+90 40 2.1 4.35 1
+75 15 1.2 6.2 1
+80 35 9.4 11.686 1
+9
+75 38 4 5.9737 1
+45 14 0.8 4.0143 1
+75 30 1.83 4.33 1
+80 38 1.9 4.0053 1
+58 38 5.8 7.3263 1
+94 38 1.83 4.3037 1
+85 45 3 4.8889 1
+69 35 3.5 5.4714 1
+60 30 2.3 4.3 0
+60 38 3 4.5789 1
+70 20 1.83 5.33 1
+80 20 4.4 8.4 1
+53 20 1.4 4.05 1
+60 62 6.8 7.7677 1
+95 30 2 5.1667 1
+70 35 2.7 4.7 0
+72 20 1.3 4.9 1
+60 20 2.9 5.9 1
+42 15 1.3 4.1 1
+70 25 1.2 4 1
+65 25 1.83 4.43 1
+69 20 1.2 4.65 1
+60 25 2.5 4.9 1
+60 25 1.7 4.1 1
+80 25 1.1 4.3 0
+72 30 1.7 4.1 1
+85 60 3.2 4.6167 0
+86 38 1.83 4.0932 1
+60 40 3.7 5.2 1
+46 17 2.1 4.8059 1
+53 35 3.4 4.9143 0
+60 45 6.1 7.4333 0
+68 25 2.1 4.82 0
+72 25 1.7 4.58 1
+75 30 1.83 4.33 1
+72 45 2.5 4.1 1
+60 25 1.7 4.1 0
+59 20 2.4 5.35 1
+75 38 2.5 4.4737 1
+60 25 2.1 4.5 1
+80 35 2.1 4.3857 0
+60 25 3.5 5.9 0
+70 17 1 5.1176 0
+54 70 9 9.7714 1
+73 20 1.83 5.48 1
+65 25 5 7.6 0
+72 25 1.2 4.08 0
+64 25 2.4 4.96 0
+65 25 1.4 4 1
+55 20 1.83 4.58 1
+70 40 2.7 4.45 0
+42 30 3.8 5.2 0
+%e
+writetable(RiskScoreGroup,'heart_risk_group.csv');
+13
+clear; clc;
+%a
+%b
+B = readtable('bank-full.csv');
+10
+disp(B.Properties.VariableNames);
+{'age'} {'job'} {'marital'} {'education'} {'default'} {'balance'} {'housing'} {'l
+%c
+age = B.age; balance = B.balance; loan = B.loan; y = B.y;
+%d
+if iscategorical(B.loan), idx_t1 = (B.age >= 40) & (B.balance >= 2000) &
+(B.loan == 'no');
+else, idx_t1 = (B.age >= 40) & (B.balance >= 2000) & strcmp(B.loan,'no');
+end
+T1 = B(idx_t1,:);
+%e
+T2 = T1(:,{'age','balance','y'});
+%f
+if iscategorical(T2.y), T2.NewFlag = double(T2.y == 'yes');
+else, T2.NewFlag = double(strcmp(T2.y,'yes')); end
+%g
+Subscribed = T2(T2.NewFlag == 1,:);
+balanceVec = Subscribed.balance;
+avgBalance = mean(balanceVec);
+fprintf('avgBalance: %.2f\n',avgBalance);
+avgBalance: 5395.63
+writetable(Subscribed,'bank_selected.csv');
+11
