@@ -1,0 +1,323 @@
+1
+clear; clc;
+
+%(a)
+rng(13);
+
+%(b)
+p_i = 0.35 + (0.95 - 0.35) * rand(1, 40);
+
+%(c)
+num_students = 5000;
+num_questions = 40;
+rand_matrix = rand(num_students, num_questions);
+correct_matrix = rand_matrix <= p_i;
+
+%(d)
+total_scores = sum(correct_matrix, 2);
+mean_scores = mean(correct_matrix, 2);
+std_scores = std(double(correct_matrix), 0, 2);
+
+%(e)
+overall_mean_score = mean(total_scores);
+above_mean_ratio = mean(total_scores >= overall_mean_score);
+
+
+disp(above_mean_ratio * 100);
+
+histogram(total_scores, 'BinWidth', 1, 'FaceColor', 'b', 'EdgeColor', 'k');
+hold on;
+xline(overall_mean_score, 'r--', 'LineWidth', 2);
+hold off;
+grid on; box on;
+
+legend('점수 분포', sprintf('평균점수: %.2f점', overall_mean_score));
+2
+clear; clc;
+
+%(a)
+num_boxes = 10000;
+items_per_box = 20;
+weights = 100 + 4 * randn(num_boxes, items_per_box);
+
+%(b)
+box_means = mean(weights, 2);
+
+%(c)
+failed_condition = (box_means < 98) | (box_means > 102);
+
+%(d)
+fail_rate = mean(failed_condition)*100
+
+%(e)
+figure(2);
+histogram(box_means,'FaceColor', [0.4 0.6 0.8], 'EdgeColor', 'k');
+hold on;
+xline(98, 'r--');
+xline(102, 'r--');
+hold off;
+legend('상자 평균 무게', '품질 기준선 (98g, 102g)');
+3
+clear; clc;
+
+%(a)
+num_trials = 100000;
+N = randn(num_trials, 1);
+
+%(b)
+S = 1.8 + N;
+
+%(c)
+success_condition = (S >= 1.2);
+
+%(d)
+success_rate = mean(success_condition)*100
+
+%(e)
+figure(3);
+histogram(S, 'FaceColor', 'g', 'EdgeColor', 'k');
+hold on;
+xline(1.2, 'r-', 'LineWidth', 2);
+hold off;
+grid on;
+legend('신호 세기 (S)', '임계값 (1.2)');
+4
+clear; clc;
+
+%(a)
+days = 365;
+lambda_order = 180;
+daily_orders = poissrnd(lambda_order, days, 1);
+
+%(b)
+daily_total_time = zeros(days, 1);
+
+for d = 1:days
+    num_orders = daily_orders(d);
+    if num_orders > 0
+        order_times = 6 + 2 * randn(num_orders, 1);
+        order_times(order_times < 0) = 0;
+        daily_total_time(d) = sum(order_times);
+    else
+        daily_total_time(d) = 0;
+    end
+end
+
+%(c)
+over_1200_ratio = mean(daily_total_time > 1200)*100
+
+%(d)
+figure(4);
+subplot(2,1,1);
+plot(1:days, daily_orders, 'Color', 'b', 'LineWidth', 1.5);
+grid on; box on;
+ylabel('주문 수 (건)');
+title('365일간의 일별 주문 수 추이 (4번)');
+
+subplot(2,1,2);
+plot(1:days, daily_total_time, 'Color', 'm', 'LineWidth', 1.5);
+grid on; box on;
+xlabel('날짜 (일)');
+ylabel('총 처리 시간 (분)');
+title('365일간의 일별 총 처리 시간 추이 (4번)');
+
+%(e)
+figure(5);
+scatter(daily_orders, daily_total_time, 'filled', 'MarkerFaceColor', 'b');
+grid on;
+5
+clear; clc;
+
+%(a)
+num_sim = 10000;
+num_sensors = 30;
+true_temp = 25;
+errors = 0.8 * randn(num_sim, num_sensors);
+measurements = true_temp + errors;
+
+%(b)
+sensor_averages = mean(measurements, 2);
+
+%(c)
+success_event = (sensor_averages >= 24.7) & (sensor_averages <= 25.3);
+
+%(d)
+prob_estimate = mean(success_event)*100
+
+%(e)
+single_sensor = measurements(:, 1);
+
+figure(6);
+histogram(single_sensor, 'FaceColor', 'r', 'FaceAlpha', 0.5, 'EdgeColor', 'k');
+hold on;
+histogram(sensor_averages, 'FaceColor', 'b', 'FaceAlpha', 0.5, 'EdgeColor', 'k');
+hold off;
+grid on; 
+legend('센서 1개 사용', '센서 30개 평균 사용');
+6
+clear; clc;
+
+%(a)
+num_paths = 5000;
+days = 60;
+returns = 0.0008 + 0.015 * randn(num_paths, days);
+
+%(b)
+initial_asset = 100;
+asset_paths = initial_asset * cumprod(1 + returns, 2);
+asset_paths = [ones(num_paths, 1) * initial_asset, asset_paths];
+
+%(c)
+final_assets = asset_paths(:, end);
+mean_final = mean(final_assets);
+min_final = min(final_assets);
+max_final = max(final_assets);
+
+fprintf('6번 결과:\n');
+fprintf('마지막 날 자산가치 평균: %.2f\n', mean_final);
+fprintf('마지막 날 자산가치 최솟값: %.2f\n', min_final);
+fprintf('마지막 날 자산가치 최댓값: %.2f\n', max_final);
+
+%(d)
+prob_loss = mean(final_assets < 100)*100
+
+%(e)
+rand_indices = randperm(num_paths, 30);
+
+figure(7);
+plot(0:days, asset_paths(rand_indices, :)', 'LineWidth', 1.2);
+grid on; 
+7
+clear; clc;
+
+%(a)
+num_patients = 300;
+arrival_intervals = exprnd(8, num_patients, 1);
+arrival_times = cumsum(arrival_intervals);
+
+%(b)
+service_times = 10 + 3 * randn(num_patients, 1);
+service_times(service_times < 0) = 1;
+
+%(c)
+start_times = zeros(num_patients, 1);
+end_times = zeros(num_patients, 1);
+
+start_times(1) = arrival_times(1);
+end_times(1) = start_times(1) + service_times(1);
+
+for i = 2:num_patients
+    start_times(i) = max(arrival_times(i), end_times(i-1));
+    end_times(i) = start_times(i) + service_times(i);
+end
+
+%(d)
+wait_times = start_times - arrival_times;
+
+%(e)
+mean_wait = mean(wait_times);
+max_wait = max(wait_times);
+over_20_ratio = mean(wait_times > 20);
+
+fprintf('7번 결과:\n');
+fprintf('평균 대기시간: %.2f분\n', mean_wait);
+fprintf('최대 대기시간: %.2f분\n', max_wait);
+fprintf('대기시간 20분 초과 환자 비율: %.2f%%\n\n', over_20_ratio * 100);
+
+figure(8);
+histogram(wait_times, 'FaceColor', 'm');
+grid on; 
+8
+clear; clc;
+
+%(a)
+num_sim = 100000;
+rand_matrix = rand(num_sim, 5);
+
+%(b)
+p = [0.72, 0.81, 0.67, 0.90, 0.76];
+detection_matrix = rand_matrix <= p;
+
+%(c)
+detected_counts = sum(detection_matrix, 2);
+
+%(d)
+system_success = (detected_counts >= 3);
+system_prob = mean(system_success)*100
+
+%(e)
+figure(9);
+histogram(detected_counts, 'BinMethod', 'integers', 'FaceColor', 'c', 'EdgeColor', 'k');
+grid on; 
+9
+clear; clc;
+
+total_products = 50000;
+
+%(a)
+passed_step1 = rand(total_products, 1) <= 0.94;
+
+%(b)
+passed_step2 = false(total_products, 1);
+idx_step1 = find(passed_step1);
+passed_step2(idx_step1) = rand(length(idx_step1), 1) <= 0.91;
+
+%(c)
+passed_step3 = false(total_products, 1);
+idx_step2 = find(passed_step2);
+passed_step3(idx_step2) = rand(length(idx_step2), 1) <= 0.88;
+
+%(d)
+final_pass_rate = mean(passed_step3);
+
+fail_at_step1 = total_products - sum(passed_step1);
+fail_at_step2 = sum(passed_step1) - sum(passed_step2);
+fail_at_step3 = sum(passed_step2) - sum(passed_step3);
+final_passed = sum(passed_step3);
+
+fprintf('최종 공정 합격률: %.2f%%\n\n', final_pass_rate * 100);
+
+%(e)
+categories = {'1단계 탈락', '2단계 탈락', '3단계 탈락', '최종 합격'};
+counts = [fail_at_step1, fail_at_step2, fail_at_step3, final_passed];
+
+figure(10);
+bar(counts, 'FaceColor', [0.2 0.6 0.4]);
+set(gca, 'XTickLabel', categories);
+grid on; 
+10
+clear; clc;
+
+num_days = 10000;
+
+%(a)
+server_variance = 35 * randn(num_days, 1);
+
+%(b)
+cooling_overload = rand(num_days, 1) <= 0.12;
+
+%(c)
+base_load = 500;
+total_power = base_load + server_variance + (cooling_overload * 120);
+
+%(d)
+over_650_ratio = mean(total_power > 650);
+
+%(e)
+mean_overload = mean(total_power(cooling_overload == 1));
+mean_normal = mean(total_power(cooling_overload == 0));
+
+fprintf('전력 사용량 650 초과 일수 비율: %.2f%%\n', over_650_ratio * 100);
+fprintf('냉각장치 과부하 발생 시 평균 전력 사용량: %.2f\n', mean_overload);
+fprintf('냉각장치 정상 가동 시 평균 전력 사용량: %.2f\n\n', mean_normal);
+
+figure(11);
+histogram(total_power, 'FaceColor', [0.7 0.2 0.2], 'EdgeColor', 'k');
+hold on;
+xline(650, 'y--', 'LineWidth', 2);
+hold off;
+grid on; box on;
+xlabel('하루 전력 사용량');
+ylabel('일수 (Days)');
+title('10,000일간의 전력 사용량 분포 (10번)');
+legend('전력 사용량', '임계 기준선 (650)');
