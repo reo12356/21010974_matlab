@@ -1,0 +1,53 @@
+clear; clc;
+
+% (a)
+rng(3);
+
+% (b)
+t = linspace(0, 60, 6000);
+noise = randn(1, 6000);
+signal = sin(0.5 * t) + 0.4 * sin(3 * t) + 0.15 * noise;
+
+% (c)
+trend = movmean(signal, 200);
+
+% (d)
+x = linspace(-5, 5, 300);
+y = linspace(-5, 5, 300);
+[X, Y] = meshgrid(x, y);
+
+% (e)
+Z = exp(-0.05 * (X.^2 + Y.^2)) .* cos(3 * X) .* sin(2 * Y);
+
+% (f)
+fig = figure('Units', 'normalized', 'Position', [0.1, 0.1, 0.8, 0.8]);
+tlo = tiledlayout(2, 2);
+
+% (g), (j)
+nexttile;
+plot(t, signal, 'Color', [0.7, 0.7, 0.7], 'LineWidth', 0.5); hold on;
+plot(t, trend, 'r-', 'LineWidth', 1.5); hold off;
+title('2D Time Series Signal & Moving Average Trend');
+xlabel('Time'); ylabel('Value'); grid on;
+legend('Original Signal', 'Trend (Window=200)', 'Location', 'best');
+
+% (h), (j)
+nexttile;
+surf(X, Y, Z);
+shading interp; colorbar;
+title('3D Surface Structure Plot');
+xlabel('X'); ylabel('Y'); zlabel('Z');
+view(45, 30);
+
+% (i), (j)
+nexttile;
+contourf(X, Y, Z, 50, 'LineColor', 'none');
+shading interp; colorbar;
+title('2D Filled Contour Map View');
+xlabel('X'); ylabel('Y'); grid on; box on;
+
+% (k)
+title(tlo, 'Integrated Visualization Dashboard', 'FontSize', 16, 'FontWeight', 'bold');
+
+% (l)
+exportgraphics(fig, 'visualization dashboard.png', 'Resolution', 300);
